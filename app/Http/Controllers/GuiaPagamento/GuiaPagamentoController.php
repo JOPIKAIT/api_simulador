@@ -153,7 +153,28 @@ class GuiaPagamentoController extends Controller
      */
     public function show($id)
     {
-        //
+        try {
+            $guiaPagamento = GuiaPagamento::find($id);
+
+            if ($guiaPagamento) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Detalhes da Guia de Pagamento',
+                    'data' => $guiaPagamento
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nenhum guia encontrado'
+                ]);
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao localizar guia',
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -190,12 +211,82 @@ class GuiaPagamentoController extends Controller
         //
     }
 
+    public function pagarGuia(Request $request, $id){
+        try {
+
+            $data = $request->all();
+            $validator = Validator::make($data, $this->rules(), $this->message());
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validação',
+                    'error' =>  $validator->errors()
+                ]);
+            } else {
+
+                $paga_guia = GuiaPagamento::where('id', '=', $id)->first();
+                $paga_guia->situacao = $data['situacao'];
+                $paga_guia->valor  = $request->get('valor');
+                $paga_guia->save();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Guia paga com sucesso',
+                    'data' => $paga_guia
+                ]);
+            }
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nemhum Guia com esse ID',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function cancelarGuia(Request $request, $id){
+        try {
+
+            $data = $request->all();
+            $validator = Validator::make($data, $this->rules(), $this->message());
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validação',
+                    'error' =>  $validator->errors()
+                ]);
+            } else {
+
+                   $cancelar_guia = GuiaPagamento::where('id', '=', $id)->first();
+                   $cancelar_guia->situacao = $data['situacao'];
+                   $cancelar_guia->valor = $cancelar_guia->valor;
+                   $cancelar_guia->save();
+
+                   return response()->json([
+                       'success' => true,
+                       'message' => 'Guia cancelado com sucesso',
+                       'data' => $cancelar_guia
+                   ]);
+            }
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nemhum Guia com esse ID',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
     //metodo de regra de validação
     public function rules()
     {
         return  [
             // 'entidade' => 'required',
-            'valor' => 'required'
+            'valor' => ''
         ];
     }
 
@@ -204,7 +295,7 @@ class GuiaPagamentoController extends Controller
     {
         return  [
             // 'entidade.required' => 'O campo entidade é obrigatório',
-            'valor.required' => 'O campo valor é obrigatório'
+            'valor' => 'O campo valor é obrigatório'
         ];
     }
 }

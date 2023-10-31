@@ -20,4 +20,7 @@ use App\Http\Controllers\GuiaPagamento\GuiaPagamentoController;
 // });
 
 Route::get('consultar-rupe', [GuiaPagamentoController::class, 'index']);
-Route::post('emitir-guia', [GuiaPagamentoController::class, 'store'])->name('emitir-guia.store');
+Route::get('consultar-rupe/{id}', [GuiaPagamentoController::class, 'show']);
+Route::put('pagar-guia/{id}', [GuiaPagamentoController::class, 'pagarGuia']);
+Route::put('cancelar-guia/{id}', [GuiaPagamentoController::class, 'cancelarGuia']);
+Route::post('emitir-guia', [GuiaPagamentoController::class, 'store'])->name('pagar-guia.store');
